@@ -104,6 +104,7 @@
     <h1>Touch Country Identifier</h1>
     <p>A calm world map for iPad. Touch a country and it darkens briefly, like a pressed button on an AAC device. Then its name is spoken and its flag appears in a fixed corner.</p>
     <span class="status">In planning. No app code yet.</span>
+    <p style="margin-top:12px">Daily progress: <a href="DEVLOG.html">DEVLOG.html</a></p>
   </header>
 
   <section id="what">
@@ -141,13 +142,16 @@
   <section id="voice">
     <h2>Voice clips are not included</h2>
     <p>The spoken names should be in the same voice the user already hears on their own AAC app. So the clips are recorded from that app and kept out of this repo. Many AAC voices are commercially licensed, which is another reason not to republish them.</p>
-    <p>The planned recording process:</p>
+    <p>The planned recording process, all in one screen recording:</p>
     <ol class="plain">
       <li>Turn on the iPad's screen recording with the microphone off.</li>
-      <li>Have the AAC app speak each country name, leaving about 2 seconds of silence between names.</li>
-      <li>Move the recording to a Mac. A script will split it at the silences into one clip per country.</li>
+      <li>Tap every country button the AAC app already has, leaving about 2 seconds of silence after each name.</li>
+      <li>For countries without a button, paste or type their names into the app's message bar and have them spoken. Universal Clipboard lets you copy the list on a Mac and paste it on the iPad.</li>
+      <li>Move the recording to a Mac. A script splits it at the silences, then uses speech-to-text to recognize each name and match it to the country list.</li>
+      <li>A review page plays each clip with its country and flag, starting with any the script wasn't sure about. Only wrong or missing clips get re-recorded.</li>
     </ol>
-    <div class="callout">The splitting script and a clip review page are still to come. These steps will be updated when they land.</div>
+    <p>Clips are named by what they say, not by their position. So the recording can be in any order, and a wrong, skipped or repeated name doesn't throw off the rest. When a country appears twice, the button version wins, so it sounds exactly like the button the user already knows.</p>
+    <div class="callout">The splitting script and review page are still to come.</div>
   </section>
 
   <section id="tech">
@@ -155,6 +159,7 @@
     <ul class="plain">
       <li>Build: Vite, plain JavaScript and <code>vite-plugin-pwa</code>, with everything precached.</li>
       <li>Map: Natural Earth 1:50m shapes from <code>world-atlas</code>, drawn as SVG with <code>d3-geo</code> and <code>topojson-client</code>.</li>
+      <li>Clip naming: <code>ffmpeg</code> silence detection, then local speech-to-text (Whisper) fuzzy-matched to the country list.</li>
       <li>Audio: Web Audio, with every clip decoded at startup and played through a first-in, first-out queue.</li>
       <li>Flags: <code>flag-icons</code> (MIT).</li>
       <li>Install: open in Safari → Share → Add to Home Screen. Guided Access (Settings → Accessibility) keeps the app on screen.</li>
