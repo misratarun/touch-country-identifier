@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Touch Country Identifier</title>
+<meta name="description" content="A calm, low-stimulation world map for iPad: touch a country, hear its name.">
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --surface: #ffffff;
+    --surface-2: #efece5;
+    --text: #24292f;
+    --muted: #5b6470;
+    --border: #e2ddd3;
+    --accent: #3d6e8f;
+    --warn-soft: #f6efdc;
+    --warn-border: #e3d3a6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16191d;
+      --surface: #1e2227;
+      --surface-2: #262b31;
+      --text: #e6e3dd;
+      --muted: #a0a7b0;
+      --border: #323940;
+      --accent: #8fb8d4;
+      --warn-soft: #2c2719;
+      --warn-border: #4d4329;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16191d;
+    --surface: #1e2227;
+    --surface-2: #262b31;
+    --text: #e6e3dd;
+    --muted: #a0a7b0;
+    --border: #323940;
+    --accent: #8fb8d4;
+    --warn-soft: #2c2719;
+    --warn-border: #4d4329;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px 64px; }
+
+  header.page { margin-bottom: 24px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; }
+  header.page p { margin: 0; color: var(--muted); max-width: 640px; }
+  .status {
+    display: inline-block; margin-top: 12px; padding: 2px 10px; border-radius: 999px;
+    background: var(--warn-soft); border: 1px solid var(--warn-border); font-size: 14px;
+  }
+
+  section { margin-top: 40px; }
+  h2 { font-size: 22px; margin: 0 0 12px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--accent); }
+  code {
+    font: 14px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--surface-2); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere;
+  }
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 20px; }
+  .flow .step {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 12px; font-size: 15px;
+  }
+  .flow .arrow { color: var(--muted); }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  th { background: var(--surface-2); font-weight: 600; font-size: 14px; }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+
+  ul.plain, ol.plain { margin: 0; padding-left: 20px; }
+  ul.plain li, ol.plain li { margin-bottom: 6px; }
+
+  .callout {
+    background: var(--warn-soft); border: 1px solid var(--warn-border); border-radius: 10px;
+    padding: 12px 14px; margin: 12px 0; font-size: 15px;
+  }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 26px; }
+    td:first-child { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <header class="page">
+    <h1>Touch Country Identifier</h1>
+    <p>A calm world map for iPad. Touch a country and it darkens briefly, like a pressed button on an AAC device. Then its name is spoken and its flag appears in a fixed corner.</p>
+    <span class="status">In planning. No app code yet.</span>
+  </header>
+
+  <section id="what">
+    <h2>What it does</h2>
+    <p><strong>Touch a place → hear its name.</strong> That's the whole app. A parent or teacher does the teaching. The app has no quiz, scoring, prompts, praise sounds or levels.</p>
+    <div class="flow" aria-label="What happens on a tap">
+      <span class="step">Finger touches a country</span><span class="arrow">→</span>
+      <span class="step">Country darkens briefly</span><span class="arrow">→</span>
+      <span class="step">Name is spoken (waits its turn)</span><span class="arrow">→</span>
+      <span class="step">Flag shows in the corner</span>
+    </div>
+  </section>
+
+  <section id="design">
+    <h2>Design choices</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Topic</th><th>Choice</th></tr></thead>
+        <tbody>
+          <tr><td>Model</td><td>Behave like an AAC button grid: predictable, the same every time.</td></tr>
+          <tr><td>Press feedback</td><td>The country darkens briefly, then goes back to normal.</td></tr>
+          <tr><td>Fast taps</td><td>Names queue, and each waits for the previous one to finish. None get cut off. The darken still happens instantly on every tap.</td></tr>
+          <tr><td>Coverage</td><td>Every country speaks, and they all behave the same way.</td></tr>
+          <tr><td>Flag</td><td>Shown in one fixed corner. It appears when its name starts playing and stays until the next name.</td></tr>
+          <tr><td>Text on screen</td><td>None.</td></tr>
+          <tr><td>Ocean</td><td>Tapping the ocean is silent, like the empty space between buttons.</td></tr>
+          <tr><td>Stimulation</td><td>Fixed muted colors. No animations except the darken, and no sounds except names.</td></tr>
+          <tr><td>Small countries</td><td>Larger invisible tap zones, so a fingertip can hit them on the first try.</td></tr>
+          <tr><td>Offline</td><td>Everything, audio included, downloads on install. After that, every tap responds instantly with or without a connection.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="voice">
+    <h2>Voice clips are not included</h2>
+    <p>The spoken names should be in the same voice the user already hears on their own AAC app. So the clips are recorded from that app and kept out of this repo. Many AAC voices are commercially licensed, which is another reason not to republish them.</p>
+    <p>The planned recording process:</p>
+    <ol class="plain">
+      <li>Turn on the iPad's screen recording with the microphone off.</li>
+      <li>Have the AAC app speak each country name, leaving about 2 seconds of silence between names.</li>
+      <li>Move the recording to a Mac. A script will split it at the silences into one clip per country.</li>
+    </ol>
+    <div class="callout">The splitting script and a clip review page are still to come. These steps will be updated when they land.</div>
+  </section>
+
+  <section id="tech">
+    <h2>Planned tech</h2>
+    <ul class="plain">
+      <li>Build: Vite, plain JavaScript and <code>vite-plugin-pwa</code>, with everything precached.</li>
+      <li>Map: Natural Earth 1:50m shapes from <code>world-atlas</code>, drawn as SVG with <code>d3-geo</code> and <code>topojson-client</code>.</li>
+      <li>Audio: Web Audio, with every clip decoded at startup and played through a first-in, first-out queue.</li>
+      <li>Flags: <code>flag-icons</code> (MIT).</li>
+      <li>Install: open in Safari → Share → Add to Home Screen. Guided Access (Settings → Accessibility) keeps the app on screen.</li>
+    </ul>
+  </section>
+
+</main>
+</body>
+</html>
