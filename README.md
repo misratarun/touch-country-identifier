@@ -3,7 +3,7 @@
 A calm world map for iPad. Touch a country and it darkens briefly, like a pressed button on an AAC device. Then its name is spoken and its flag appears in a fixed corner.
 
 > **Status:** In planning. No app code yet.
-> Daily progress: [DEVLOG.html](DEVLOG.html)
+> Daily progress: [DEVLOG.md](DEVLOG.md)
 
 ## What it does
 
