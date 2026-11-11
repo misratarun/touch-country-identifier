@@ -7,7 +7,8 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host",
-    "countries": "node scripts/build-countries.mjs"
+    "countries": "node scripts/build-countries.mjs",
+    "icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.2",
@@ -17,9 +18,11 @@
   },
   "devDependencies": {
     "i18n-iso-countries": "^7.14.0",
+    "sharp": "^0.35.5",
     "topojson-server": "^3.0.1",
     "topojson-simplify": "^3.0.3",
     "vite": "^8.3.7",
+    "vite-plugin-pwa": "^2.0.0",
     "world-countries": "^5.1.0"
   }
 }

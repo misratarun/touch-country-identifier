@@ -19,7 +19,9 @@ Day-by-day progress on [Touch Country Identifier](README.md), newest first.
 
 **Next**
 
-- Try the map on the iPad.
+- Tried the map on the iPad in Safari.
+- Made it an app that installs to the home screen and runs with no connection, with its own icon.
+- Next: publish it so the iPad can install it.
 
 ## Day 2: from flat map to globe
 

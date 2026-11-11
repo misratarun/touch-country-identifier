@@ -2,7 +2,7 @@
 
 A calm flat map for iPad, opened level by level with single touches. Touch a place and it darkens briefly, like a pressed button on an AAC device. Then its name is spoken and its flag appears in a fixed corner.
 
-> **Status:** Works in a browser. Not yet tried on an iPad, and not yet installable offline.
+> **Status:** Works in Safari on an iPad, and builds as an app that installs to the home screen and runs offline.
 > Daily progress: [DEVLOG.md](DEVLOG.md)
 
 > **Two tracks.** This branch, `map-2d`, is the flat map and is where work continues. An earlier 3D globe (turn with one finger, pinch to zoom) is kept unchanged on the `globe-3d` branch and the `3d-globe` tag.
@@ -15,6 +15,18 @@ npm run dev
 ```
 
 Open the "Network" address it prints in Safari on an iPad that is on the same wifi.
+
+## Put it on an iPad
+
+The map is a web app that installs from Safari. It needs a connection only the first time it opens; after that everything, flags included, is saved on the iPad.
+
+1. Open the published address in Safari.
+2. Tap Share → Add to Home Screen → Add.
+3. Open it once from the new icon while still online, then it works with no connection.
+
+To keep a child inside the app, turn on Guided Access (Settings → Accessibility → Guided Access), open the map, and triple-click the top button.
+
+`.github/workflows/publish.yml` builds the map and publishes it to GitHub Pages whenever the `map-2d` branch changes. The installed app picks up a new version the next time it opens online.
 
 ## What it does
 
@@ -65,6 +77,7 @@ Clips are named by what they say, not by their position. So the recording can be
 
 ## Tech
 
+- **Offline app:** `vite-plugin-pwa` saves every file on the device and supplies the home-screen name and icon. `npm run icons` redraws the icon.
 - **Build:** Vite and plain JavaScript. The app is `src/map.js`, with tunable numbers, written names and the list of world-page flags at the top.
 - **Shared code:** `src/shared/` holds flag loading, the voice queue and geometry helpers.
 - **Drawing:** `d3-geo` on a canvas. Each page is drawn once.
@@ -78,5 +91,4 @@ Clips are named by what they say, not by their position. So the recording can be
 
 Still to come:
 
-- **Offline install:** `vite-plugin-pwa` with everything precached, then Safari → Share → Add to Home Screen. Guided Access (Settings → Accessibility) keeps the app on screen.
 - **Recorded voice:** `ffmpeg` silence detection, then local speech-to-text (Whisper) fuzzy-matched to the name list, played through Web Audio in a first-in, first-out queue.
