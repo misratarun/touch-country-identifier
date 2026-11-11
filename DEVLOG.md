@@ -15,6 +15,7 @@ Day-by-day progress on [Touch Country Identifier](README.md), newest first.
 - Added a back button on every page below the world.
 - Wrote the names of continents, oceans, Greenland and Antarctica on the world page, and showed the flags of a few large countries there.
 - Reshaped the continent pages so crowded areas spread out and large countries take less room.
+- Changed the world page from an oval to a flat rectangle that fills the screen, with larger continents and less ocean.
 
 **Next**
 

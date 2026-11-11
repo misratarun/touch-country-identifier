@@ -36,7 +36,7 @@ The map works like folders of buttons on an AAC device. To reach Iowa: touch Nor
 | Touch | One finger, one touch at a time. No pinching or dragging. |
 | Press feedback | The touched place darkens briefly, then goes back to normal. |
 | Fast taps | Names queue, and each waits for the previous one to finish. None get cut off. |
-| World page | Each continent has its own muted colour. Continents, oceans, Greenland and Antarctica have their names written on them, and a few large countries show their flag. |
+| World page | A flat rectangle that fills the whole screen, with the continents enlarged and open ocean and the poles squeezed. Each continent has its own muted colour. Continents, oceans, Greenland and Antarctica have their names written on them, and a few large countries show their flag. |
 | Whole flags | On a continent page each flag is drawn complete, at the largest size that fits inside the country's border. Nothing is stretched or cut off. |
 | Room for small countries | Continent pages are reshaped for clarity, not accuracy: crowded areas are stretched, and large countries and open sea are squeezed. The order of places never changes. |
 | Countries still too small | They get a small flag marker beside them, nudged apart so none overlap. Only sovereign countries get a marker; small territories still speak when touched. |
@@ -69,7 +69,7 @@ Clips are named by what they say, not by their position. So the recording can be
 - **Shared code:** `src/shared/` holds flag loading, the voice queue and geometry helpers.
 - **Drawing:** `d3-geo` on a canvas. Each page is drawn once.
 - **Flag placement:** the country is drawn small, then every position is tried for the largest 4:3 box that lies fully on land.
-- **Reshaping:** each screen axis of a continent page is stretched where countries are crowded and squeezed elsewhere. `SPREAD` sets how strongly; 0 gives true shapes.
+- **Reshaping:** each screen axis of a continent page is stretched where countries are crowded and squeezed elsewhere. `SPREAD` sets how strongly; 0 gives true shapes. The world page is reshaped the same way (`WORLD_SPREAD`), with every continent given an equal say.
 - **Country data:** Natural Earth shapes from `world-atlas`. `npm run countries` writes `src/countries.json` with each shape's spoken name, flag and continent.
 - **State data:** Natural Earth admin-1 (1:50m, public domain). `scripts/build-states.mjs` writes `src/data/states-*.json`; the script header gives the source file.
 - **Water names:** rough outlines in `src/data/waters.js`.

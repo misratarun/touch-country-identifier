@@ -1,7 +1,7 @@
 // A flat map opened level by level with single touches.
 // World -> continent -> country, and for a few countries -> state or province.
 import {
-  geoNaturalEarth1, geoAzimuthalEqualArea, geoAlbersUsa, geoConicConformal, geoMercator,
+  geoEquirectangular, geoAzimuthalEqualArea, geoAlbersUsa, geoConicConformal, geoMercator,
   geoPath, geoContains, geoBounds, geoCentroid, geoTransform,
 } from "d3-geo";
 import { feature, neighbors } from "topojson-client";
@@ -68,12 +68,13 @@ const WORLD_LABELS = [
 // Countries whose flag is shown on the world map, where it fits inside the border.
 const WORLD_FLAGS = ["United States", "Canada", "Mexico", "Brazil", "Argentina", "Russia", "China", "India",
   "Australia", "South Africa", "Egypt", "Nigeria", "Saudi Arabia", "Kazakhstan", "Indonesia", "Algeria"];
-const WORLD_FLAG_MAX = 46;  // px: widest a flag may be on the world map
+const WORLD_FLAG_MAX = 58;  // px: widest a flag may be on the world map
 // On the world map these say their own name instead of opening their continent.
 const WORLD_OWN = ["Greenland"];
 // How strongly a continent page is reshaped to give every country room.
 // 0 keeps true shapes; nearer 1 shrinks big countries and empty sea further.
 const SPREAD = 0.6;
+const WORLD_SPREAD = 0.45; // the same, for the world page
 const BIG_SHARE = 5;      // the most room a large country gets, counted in small countries
 const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
 const BOTH = { "Russia": ["europe", "asia"], "Turkey": ["asia", "europe"] };
@@ -302,16 +303,42 @@ function reshaped(projection, xs, ys) {
 
 // ---- Page: the world ------------------------------------------------------
 function worldPage() {
-  const projection = geoNaturalEarth1().rotate([-11, 0])
-    .fitExtent([[10, 10], [width - 10, height - 10]], { type: "Sphere" });
-  const europeBox = [0, 30, EUROPE_ENDS_AT, 89];
+  // A plain rectangle of the world that fills the whole screen. The continents
+  // are then given more of it, and open ocean and the poles less.
+  const flat = geoEquirectangular().rotate([-11, 0]).fitSize([width, width / 2], { type: "Sphere" });
+  const tall = height / (width / 2);
   const russia = placeNamed("Russia");
   const own = p => !p.continents.length || WORLD_OWN.includes(p.name); // says its own name here
+  // Every continent gets the same say in how the screen is shared, however
+  // many countries it has; within a continent, larger countries count for more.
+  const across = [], down = [];
+  const measure = geoPath(flat);
+  const totals = {};
+  const sized = [];
+  for (const p of places) {
+    if (own(p) || !p.name) continue;
+    p.patches ??= patchesFor(p.shape, p.flag);
+    const main = p.patches[0].shape;
+    const [cx, cy] = measure.centroid(main), r = Math.sqrt(measure.area(main)) * 0.6;
+    if (!Number.isFinite(cx)) continue;
+    const id = p.continents[0];
+    totals[id] = (totals[id] || 0) + r * r;
+    sized.push({ id, cx, cy, r });
+  }
+  for (const { id, cx, cy, r } of sized) {
+    const weight = r * r / totals[id];
+    across.push([cx - r, cx + r, weight]);
+    down.push([(cy - r) * tall, (cy + r) * tall, weight]);
+  }
+  const xs = axisMap(width, across, WORLD_SPREAD), stretch = axisMap(height, down, WORLD_SPREAD);
+  const ys = { forward: y => stretch.forward(y * tall), reverse: y => stretch.reverse(y) / tall };
+  const projection = reshaped(flat, xs, ys);
+  const europeBox = [0, 30, EUROPE_ENDS_AT, 89];
 
   // Written names, and the space each one takes.
   const size = Math.max(0.7, Math.min(1.25, width / 1024));
   const labels = WORLD_LABELS.map(l => {
-    const [x, y] = projection(l.at);
+    const [x, y] = projection.project(l.at);
     const font = l.water ? `italic 500 ${13 * size}px ${FONT}` : `600 ${15 * size}px ${FONT}`;
     ctx.font = font;
     const w = ctx.measureText(l.text).width + 8, h = (l.water ? 13 : 15) * size + 8;
@@ -326,7 +353,7 @@ function worldPage() {
 
   // Russia is in two continents: run `draw` for only the part in one of them.
   function russiaPart(c, continent, draw) {
-    const ring = boxRing(projection, europeBox);
+    const ring = boxRing(p => projection.project(p), europeBox);
     c.save();
     c.beginPath();
     if (continent === "asia") c.rect(0, 0, width, height);
@@ -348,8 +375,7 @@ function worldPage() {
 
   return {
     render(c) {
-      trace(c, projection, { type: "Sphere" });
-      c.fillStyle = COLORS.ocean; c.fill();
+      c.fillStyle = COLORS.ocean; c.fillRect(0, 0, width, height);
       c.fillStyle = COLORS.noContinent;
       for (const p of places) if (own(p)) { trace(c, projection, p.shape); c.fill(); }
       for (const id of Object.keys(CONTINENTS)) fillContinent(c, id, CONTINENTS[id].color);
@@ -359,8 +385,6 @@ function worldPage() {
         c.strokeStyle = own(p) ? COLORS.outline : COLORS.worldBorder;
         c.stroke();
       }
-      trace(c, projection, { type: "Sphere" });
-      c.strokeStyle = COLORS.outline; c.lineWidth = 1; c.stroke();
       for (const f of worldFlags) drawFlag(c, f.place.flag, f.x, f.y, f.w, f.h, false);
       c.textAlign = "center"; c.textBaseline = "middle"; c.lineJoin = "round";
       for (const l of labels) {
@@ -373,8 +397,6 @@ function worldPage() {
     hit(x, y) {
       const point = projection.invert([x, y]);
       if (!point) return null;
-      const back = projection(point);
-      if (!back || Math.hypot(back[0] - x, back[1] - y) > 1.5) return null; // outside the map
       const p = placeAt(point);
       if (!p) return waterTarget(waterAt(point), x, y);
       if (!p.name) return null;
@@ -384,6 +406,7 @@ function worldPage() {
       const id = p === russia ? (point[0] >= 0 && point[0] < EUROPE_ENDS_AT ? "europe" : "asia") : p.continents[0];
       return { say: { name: CONTINENTS[id].name }, open: id, shade: c => fillContinent(c, id, COLORS.pressed) };
     },
+    debug: { projection: p => projection.project(p) },
   };
 }
 
