@@ -10,7 +10,7 @@ html, body {
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
-#globe {
+.stage {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -29,3 +29,22 @@ html, body {
   background: #fff;
   pointer-events: none;
 }
+
+/* The way back to the page above. */
+#back {
+  position: fixed;
+  left: max(20px, env(safe-area-inset-left));
+  top: max(20px, env(safe-area-inset-top));
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #c9c6bd;
+  border-radius: 50%;
+  background: #f7f5ef;
+  color: #4b545b;
+  touch-action: manipulation;
+}
+#back[hidden] { display: none; }
+#back:active { background: #dcd9d0; }

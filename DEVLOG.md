@@ -2,6 +2,24 @@
 
 Day-by-day progress on [Touch Country Identifier](README.md), newest first.
 
+## Day 2 (later): a flat map that opens by touch
+
+*10 Nov 2026*
+
+**Done**
+
+- Froze the globe on its own branch (`globe-3d`) and started the flat map as a separate track (`map-2d`).
+- Built the 2D map as pages: world → continent → country → state. One touch at a time, with no pinching.
+- Drew every flag whole inside its country's border, with small markers for countries too small to hold one.
+- Added spoken names for oceans and major seas, and state pages for the United States, Canada and India.
+- Added a back button on every page below the world.
+- Wrote the names of continents, oceans, Greenland and Antarctica on the world page, and showed the flags of a few large countries there.
+- Reshaped the continent pages so crowded areas spread out and large countries take less room.
+
+**Next**
+
+- Try the map on the iPad.
+
 ## Day 2: from flat map to globe
 
 *10 Nov 2026*

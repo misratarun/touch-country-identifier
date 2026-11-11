@@ -1,9 +1,11 @@
 # Touch Country Identifier
 
-A calm globe for iPad, with every country painted in its own flag. Turn it with one finger and zoom with two. Touch a country and it darkens briefly, like a pressed button on an AAC device. Then its name is spoken and its flag appears in a fixed corner.
+A calm flat map for iPad, opened level by level with single touches. Touch a place and it darkens briefly, like a pressed button on an AAC device. Then its name is spoken and its flag appears in a fixed corner.
 
-> **Status:** First version works in a browser. Not yet tried on an iPad, and not yet installable offline.
+> **Status:** Works in a browser. Not yet tried on an iPad, and not yet installable offline.
 > Daily progress: [DEVLOG.md](DEVLOG.md)
+
+> **Two tracks.** This branch, `map-2d`, is the flat map and is where work continues. An earlier 3D globe (turn with one finger, pinch to zoom) is kept unchanged on the `globe-3d` branch and the `3d-globe` tag.
 
 ## Try it
 
@@ -16,27 +18,33 @@ Open the "Network" address it prints in Safari on an iPad that is on the same wi
 
 ## What it does
 
-**Touch a place → hear its name.** That's the whole app. A parent or teacher does the teaching. The app has no quiz, scoring, prompts, praise sounds or levels.
+**Touch a place → hear its name.** A parent or teacher does the teaching. The app has no quiz, scoring, prompts, praise sounds or levels to win.
 
-Finger touches a country → finger lifts without sliding → country darkens briefly → name is spoken (waits its turn) → flag shows in the corner
+The map works like folders of buttons on an AAC device. To reach Iowa: touch North America, then the United States, then Iowa.
+
+| Page | What a touch does |
+| --- | --- |
+| World | A continent says its name, then opens. Oceans, seas, Antarctica and Greenland say their names. |
+| Continent | A country says its name and shows its flag. The United States, Canada and India say their names, then open. Water says its name. Land from other continents is pale and silent. |
+| States or provinces | A state says its name. Neighbouring states never share a colour. |
 
 ## Design choices
 
 | Topic | Choice |
 | --- | --- |
 | Model | Behave like an AAC button grid: predictable, the same every time. |
-| Flags on the land | Each country's flag is stretched across its own shape. Land far from the rest of its country, such as Alaska, gets its own copy. |
-| Movement | The globe moves only under a finger. It never spins by itself and stops the moment the finger lifts. North always stays up. |
-| Zoom | Two-finger pinch, limited to between 1× and 10×. |
-| When it speaks | When a finger lifts without having slid. A slide turns the globe and says nothing. |
-| Press feedback | The country darkens briefly, then goes back to normal. |
+| Touch | One finger, one touch at a time. No pinching or dragging. |
+| Press feedback | The touched place darkens briefly, then goes back to normal. |
 | Fast taps | Names queue, and each waits for the previous one to finish. None get cut off. |
-| Coverage | Every country speaks, and they all behave the same way. |
-| Flag | Shown in one fixed corner. It appears when its name starts playing and stays until the next name. |
-| Text on screen | None. |
-| Ocean | Tapping the ocean is silent, like the empty space between buttons. |
-| Stimulation | Flags in their true colours on a plain pale sea. No stars, glow or shading, and no sounds except names. `FLAG_SOFTEN` in `src/main.js` washes the colours out if needed. |
-| Small countries | Zoom in to reach them. Zoomed well in, a tiny country wins over the bigger one around it, and a tap that just misses a small island still counts. |
+| World page | Each continent has its own muted colour. Continents, oceans, Greenland and Antarctica have their names written on them, and a few large countries show their flag. |
+| Whole flags | On a continent page each flag is drawn complete, at the largest size that fits inside the country's border. Nothing is stretched or cut off. |
+| Room for small countries | Continent pages are reshaped for clarity, not accuracy: crowded areas are stretched, and large countries and open sea are squeezed. The order of places never changes. |
+| Countries still too small | They get a small flag marker beside them, nudged apart so none overlap. Only sovereign countries get a marker; small territories still speak when touched. |
+| Smallest states | Delaware, Delhi, Prince Edward Island and similar get a round marker to touch. |
+| Back button | Top-left on every page below the world. |
+| Opening a page | A page opens only after its name has been spoken, and it changes without animation. |
+| Corner flag | Shown in one fixed corner. It appears when its name starts playing and stays until the next name. |
+| Stimulation | Muted colours on a plain pale sea. Nothing moves by itself, and there are no sounds except names. |
 | Voice | The device's built-in voice for now. Clips recorded from the user's own AAC app come later. |
 
 ## Voice clips are not included
@@ -57,13 +65,18 @@ Clips are named by what they say, not by their position. So the recording can be
 
 ## Tech
 
-- **Build:** Vite and plain JavaScript. All app code is in `src/main.js`, with the tunable numbers at the top.
-- **Globe:** `d3-geo` orthographic projection on a canvas, with Natural Earth shapes from `world-atlas`. It draws 1:110m shapes while moving and 1:50m shapes when still. Each flag is clipped to its country's outline and stretched over the on-screen box around it.
-- **Names and flags:** `scripts/build-countries.mjs` writes `src/countries.json`, one row per map shape. Run `npm run countries` after changing a spoken name. Flags are from `flag-icons` (MIT).
+- **Build:** Vite and plain JavaScript. The app is `src/map.js`, with tunable numbers, written names and the list of world-page flags at the top.
+- **Shared code:** `src/shared/` holds flag loading, the voice queue and geometry helpers.
+- **Drawing:** `d3-geo` on a canvas. Each page is drawn once.
+- **Flag placement:** the country is drawn small, then every position is tried for the largest 4:3 box that lies fully on land.
+- **Reshaping:** each screen axis of a continent page is stretched where countries are crowded and squeezed elsewhere. `SPREAD` sets how strongly; 0 gives true shapes.
+- **Country data:** Natural Earth shapes from `world-atlas`. `npm run countries` writes `src/countries.json` with each shape's spoken name, flag and continent.
+- **State data:** Natural Earth admin-1 (1:50m, public domain). `scripts/build-states.mjs` writes `src/data/states-*.json`; the script header gives the source file.
+- **Water names:** rough outlines in `src/data/waters.js`.
+- **Flags:** `flag-icons` (MIT).
 - **Voice:** the browser's `speechSynthesis` for now.
 
 Still to come:
 
 - **Offline install:** `vite-plugin-pwa` with everything precached, then Safari → Share → Add to Home Screen. Guided Access (Settings → Accessibility) keeps the app on screen.
-- **Recorded voice:** `ffmpeg` silence detection, then local speech-to-text (Whisper) fuzzy-matched to the country list, played through Web Audio in a first-in, first-out queue.
-- **Canadian provinces and US states** when zoomed into those countries.
+- **Recorded voice:** `ffmpeg` silence detection, then local speech-to-text (Whisper) fuzzy-matched to the name list, played through Web Audio in a first-in, first-out queue.

@@ -7,12 +7,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#ecebe6">
-<title>Globe</title>
+<title>Map</title>
 <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
-<canvas id="globe" aria-label="Globe. Touch a country to hear its name."></canvas>
+<canvas id="map" class="stage" aria-label="Map. Touch a place to hear its name."></canvas>
+<button id="back" type="button" aria-label="Back" hidden>
+  <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
 <img id="flag" alt="" hidden>
-<script type="module" src="/src/main.js"></script>
+<script type="module" src="/src/map.js"></script>
 </body>
 </html>
