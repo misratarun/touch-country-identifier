@@ -1,36 +1,49 @@
 # Touch Country Identifier
 
-A calm world map for iPad. Touch a country and it darkens briefly, like a pressed button on an AAC device. Then its name is spoken and its flag appears in a fixed corner.
+A calm globe for iPad, with every country painted in its own flag. Turn it with one finger and zoom with two. Touch a country and it darkens briefly, like a pressed button on an AAC device. Then its name is spoken and its flag appears in a fixed corner.
 
-> **Status:** In planning. No app code yet.
+> **Status:** First version works in a browser. Not yet tried on an iPad, and not yet installable offline.
 > Daily progress: [DEVLOG.md](DEVLOG.md)
+
+## Try it
+
+```bash
+npm install
+npm run dev
+```
+
+Open the "Network" address it prints in Safari on an iPad that is on the same wifi.
 
 ## What it does
 
 **Touch a place → hear its name.** That's the whole app. A parent or teacher does the teaching. The app has no quiz, scoring, prompts, praise sounds or levels.
 
-Finger touches a country → country darkens briefly → name is spoken (waits its turn) → flag shows in the corner
+Finger touches a country → finger lifts without sliding → country darkens briefly → name is spoken (waits its turn) → flag shows in the corner
 
 ## Design choices
 
 | Topic | Choice |
 | --- | --- |
 | Model | Behave like an AAC button grid: predictable, the same every time. |
+| Flags on the land | Each country's flag is stretched across its own shape. Land far from the rest of its country, such as Alaska, gets its own copy. |
+| Movement | The globe moves only under a finger. It never spins by itself and stops the moment the finger lifts. North always stays up. |
+| Zoom | Two-finger pinch, limited to between 1× and 10×. |
+| When it speaks | When a finger lifts without having slid. A slide turns the globe and says nothing. |
 | Press feedback | The country darkens briefly, then goes back to normal. |
-| Fast taps | Names queue, and each waits for the previous one to finish. None get cut off. The darken still happens instantly on every tap. |
+| Fast taps | Names queue, and each waits for the previous one to finish. None get cut off. |
 | Coverage | Every country speaks, and they all behave the same way. |
 | Flag | Shown in one fixed corner. It appears when its name starts playing and stays until the next name. |
 | Text on screen | None. |
 | Ocean | Tapping the ocean is silent, like the empty space between buttons. |
-| Stimulation | Fixed muted colors. No animations except the darken, and no sounds except names. |
-| Small countries | Larger invisible tap zones, so a fingertip can hit them on the first try. |
-| Offline | Everything, audio included, downloads on install. After that, every tap responds instantly with or without a connection. |
+| Stimulation | Flags in their true colours on a plain pale sea. No stars, glow or shading, and no sounds except names. `FLAG_SOFTEN` in `src/main.js` washes the colours out if needed. |
+| Small countries | Zoom in to reach them. Zoomed well in, a tiny country wins over the bigger one around it, and a tap that just misses a small island still counts. |
+| Voice | The device's built-in voice for now. Clips recorded from the user's own AAC app come later. |
 
 ## Voice clips are not included
 
 The spoken names should be in the same voice the user already hears on their own AAC app. So the clips are recorded from that app and kept out of this repo. Many AAC voices are commercially licensed, which is another reason not to republish them.
 
-The planned recording process, all in one screen recording:
+This step comes after the globe itself. The planned recording process, all in one screen recording:
 
 1. Turn on the iPad's screen recording with the microphone off.
 2. Tap every country button the AAC app already has, leaving about 2 seconds of silence after each name.
@@ -42,11 +55,15 @@ Clips are named by what they say, not by their position. So the recording can be
 
 > The splitting script and review page are still to come.
 
-## Planned tech
+## Tech
 
-- **Build:** Vite, plain JavaScript and `vite-plugin-pwa`, with everything precached.
-- **Map:** Natural Earth 1:50m shapes from `world-atlas`, drawn as SVG with `d3-geo` and `topojson-client`.
-- **Clip naming:** `ffmpeg` silence detection, then local speech-to-text (Whisper) fuzzy-matched to the country list.
-- **Audio:** Web Audio, with every clip decoded at startup and played through a first-in, first-out queue.
-- **Flags:** `flag-icons` (MIT).
-- **Install:** open in Safari → Share → Add to Home Screen. Guided Access (Settings → Accessibility) keeps the app on screen.
+- **Build:** Vite and plain JavaScript. All app code is in `src/main.js`, with the tunable numbers at the top.
+- **Globe:** `d3-geo` orthographic projection on a canvas, with Natural Earth shapes from `world-atlas`. It draws 1:110m shapes while moving and 1:50m shapes when still. Each flag is clipped to its country's outline and stretched over the on-screen box around it.
+- **Names and flags:** `scripts/build-countries.mjs` writes `src/countries.json`, one row per map shape. Run `npm run countries` after changing a spoken name. Flags are from `flag-icons` (MIT).
+- **Voice:** the browser's `speechSynthesis` for now.
+
+Still to come:
+
+- **Offline install:** `vite-plugin-pwa` with everything precached, then Safari → Share → Add to Home Screen. Guided Access (Settings → Accessibility) keeps the app on screen.
+- **Recorded voice:** `ffmpeg` silence detection, then local speech-to-text (Whisper) fuzzy-matched to the country list, played through Web Audio in a first-in, first-out queue.
+- **Canadian provinces and US states** when zoomed into those countries.

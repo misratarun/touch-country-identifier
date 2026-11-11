@@ -2,6 +2,24 @@
 
 Day-by-day progress on [Touch Country Identifier](README.md), newest first.
 
+## Day 2: from flat map to globe
+
+*10 Nov 2026*
+
+**Done**
+
+- Changed the plan from a fixed flat map to a globe that turns with one finger and zooms with two.
+- Reordered the work so the app comes first. It uses the device's built-in voice for now; the recorded AAC voice becomes a later upgrade.
+- Built the first version: globe, touch to hear the name, flag in the corner, names queue.
+- Painted each country's flag across its own shape, so a country can be found by its flag.
+- Kept it calm: the globe never moves by itself, north stays up, and zoom is limited.
+- Made dragging smooth by drawing simpler shapes while the globe moves and full detail when it stops.
+
+**Next**
+
+- Try it on the iPad and adjust.
+- Make it installable and usable offline.
+
 ## Day 1: design and voice plan
 
 *26 Oct 2026*
